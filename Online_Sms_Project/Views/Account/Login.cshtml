@@ -1,0 +1,38 @@
+﻿@{
+    Layout = null;
+}
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Login - SMS Portal</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet">
+</head>
+<body class="bg-light d-flex align-items-center justify-content-center" style="height: 100vh;">
+    <div class="card shadow p-4" style="width: 400px;">
+        <h3 class="text-center mb-3 font-weight-bold text-success">User Login</h3>
+
+        @if (TempData["Success"] != null)
+        {
+            <div class="alert alert-success p-2 small">@TempData["Success"]</div>
+        }
+        @if (TempData["Error"] != null)
+        {
+            <div class="alert alert-danger p-2 small">@TempData["Error"]</div>
+        }
+
+        <form asp-action="Login" method="post">
+            @Html.AntiForgeryToken()
+            <div class="mb-3">
+                <label class="form-label">Username ya Email</label>
+                <input type="text" name="usernameOrEmail" class="form-control" required />
+            </div>
+            <div class="mb-3">
+                <label class="form-label">Password</label>
+                <input type="password" name="password" class="form-control" required />
+            </div>
+            <button type="submit" class="btn btn-success w-100">Sign In</button>
+        </form>
+        <p class="text-center mt-3 small">Naye user hain? <a asp-action="Register">Account banayein</a></p>
+    </div>
+</body>
+</html>

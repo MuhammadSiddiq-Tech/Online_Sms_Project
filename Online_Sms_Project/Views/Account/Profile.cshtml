@@ -1,0 +1,29 @@
+﻿@model Online_Sms_Project.Models.ProfileViewModel
+
+<div class="container mt-5">
+    <h3>Profile Settings</h3>
+    <form asp-action="UpdateProfile" method="post">
+        <div class="mb-3">
+            <label>Unique User ID</label>
+            <input type="text" class="form-control" value="@Model.Id" readonly />
+            <small class="text-muted">User ID change nahi ho sakti.</small>
+        </div>
+
+        <div class="mb-3">
+            <label>Username</label>
+            <input asp-for="Username" class="form-control" />
+        </div>
+
+        <div class="mb-3">
+            <label>Email</label>
+            <input asp-for="Email" class="form-control" />
+        </div>
+
+        <div class="mb-3">
+            <label>Phone Number</label>
+            <input asp-for="PhoneNumber" class="form-control" />
+        </div>
+
+        <button type="submit" class="btn btn-primary">Update Profile</button>
+    </form>
+</div>

@@ -1,0 +1,52 @@
+﻿@model IEnumerable<Online_Sms_Project.Models.User>
+@{
+    ViewData["Title"] = "Search Results";
+}
+
+<div class="container mt-4" style="max-width: 600px;">
+    <div class="card shadow-sm border-0">
+        <div class="card-header bg-primary text-white fw-bold d-flex justify-content-between align-items-center">
+            <span><i class="bi bi-search me-2"></i> Search Results</span>
+            <a asp-action="Index" class="btn btn-sm btn-light"><i class="bi bi-arrow-left"></i> Back Network</a>
+        </div>
+        <div class="card-body">
+
+            <form asp-action="FindFriends" method="get" class="mb-4">
+                <div class="input-group">
+                    <input type="text" name="searchPhone" class="form-control" placeholder="Enter phone number..." value="@ViewBag.SearchTerm" required />
+                    <button type="submit" class="btn btn-primary">Search</button>
+                </div>
+            </form>
+
+            <div class="list-group list-group-flush">
+                @if (Model != null && Model.Any())
+                {
+                    @foreach (var user in Model)
+                    {
+                        <div class="list-group-item d-flex justify-content-between align-items-center p-3 border-bottom">
+                            <div>
+                                <h6 class="fw-bold mb-0 text-dark">👤 @user.Username</h6>
+                                <small class="text-muted">📱 @user.PhoneNumber</small>
+                            </div>
+
+                            <form asp-action="SendFriendRequest" method="post">
+                                @Html.AntiForgeryToken()
+                                <input type="hidden" name="targetUserId" value="@user.Id" />
+                                <button type="submit" class="btn btn-sm btn-success px-3">
+                                    <i class="bi bi-person-plus-fill me-1"></i> Send Request
+                                </button>
+                            </form>
+                        </div>
+                    }
+                }
+                else if (ViewBag.SearchTerm != null)
+                {
+                    <div class="text-center text-muted p-4">
+                        <i class="bi bi-exclamation-circle d-block mb-2 fs-3 text-warning"></i>
+                        Is number par koi bhi user registered nahi mila!
+                    </div>
+                }
+            </div>
+        </div>
+    </div>
+</div>

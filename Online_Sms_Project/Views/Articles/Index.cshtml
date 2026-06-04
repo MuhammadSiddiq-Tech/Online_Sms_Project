@@ -1,0 +1,38 @@
+﻿@model IEnumerable<Online_Sms_Project.Models.Article>
+
+@{
+    ViewData["Title"] = "All Articles";
+}
+
+<div class="container mt-4">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2>Latest Articles</h2>
+        @if (User.Identity.IsAuthenticated)
+        {
+            <a asp-action="Create" class="btn btn-primary">Write New Article</a>
+        }
+    </div>
+
+    @if (TempData["Success"] != null)
+    {
+        <div class="alert alert-success">@TempData["Success"]</div>
+    }
+
+    <div class="row">
+        @foreach (var item in Model)
+        {
+            <div class="col-md-6 mb-4">
+                <div class="card h-100 shadow-sm">
+                    <div class="card-body">
+                        <h4 class="card-title text-primary">@item.Title</h4>
+                        <p class="card-text">@item.Content</p>
+                    </div>
+                    <div class="card-footer text-muted bg-transparent d-flex justify-content-between">
+                        <span>By: <strong>@item.Author?.Username</strong></span>
+                        <span>@item.PublishedAt.ToString("dd MMM yyyy, hh:mm tt")</span>
+                    </div>
+                </div>
+            </div>
+        }
+    </div>
+</div>

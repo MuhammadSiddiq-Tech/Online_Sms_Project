@@ -1,0 +1,57 @@
+﻿@model IEnumerable<Online_Sms_Project.Models.Message>
+@using Microsoft.AspNetCore.Http
+@{
+    var currentUserId = Context.Session.GetInt32("UserId");
+    var chatContacts = Model.Select(m => m.SenderId == currentUserId ? m.Receiver : m.Sender)
+                            .Where(u => u != null && u.Id != currentUserId)
+                            .GroupBy(u => u.Id).Select(g => g.First()).ToList();
+}
+
+<div class="container-fluid mt-2" style="height: 85vh;">
+    <div class="row bg-white shadow-sm overflow-hidden" style="height: 100%; border-radius: 12px;">
+        <div class="col-md-4 border-end p-0">
+            <div class="p-3 bg-light border-bottom fw-bold">Chats</div>
+            <div class="list-group list-group-flush" style="overflow-y: auto; height: 75vh;">
+                @foreach (var contact in chatContacts)
+                {
+                    <button class="list-group-item list-group-item-action p-3" onclick="openChatThread(@contact.Id, '@contact.Username', '@contact.PhoneNumber')">
+                        <div class="d-flex align-items-center">
+                            <div class="bg-primary text-white rounded-circle d-flex align-items-center justify-content-center me-3" style="width: 40px; height: 40px;">@contact.Username[0]</div>
+                            <div><h6 class="mb-0 fw-bold">@contact.Username</h6></div>
+                            <span class="badge bg-success rounded-circle ms-auto d-none" id="badge-@contact.Id">0</span>
+                        </div>
+                    </button>
+                }
+            </div>
+        </div>
+        <div class="col-md-8 d-flex flex-column">
+            <div id="activeChatContainer" class="d-none flex-column h-100">
+                <div class="p-3 bg-light border-bottom fw-bold" id="activeChatHeaderName">User</div>
+                <div class="flex-grow-1 p-4" id="messageBubblesBox" style="overflow-y: auto; background-color: #e5ddd5;">
+                    @foreach (var msg in Model)
+                    {
+                        bool isSentByMe = msg.SenderId == currentUserId;
+                        <div class="d-flex mb-2 msg-bubble-row d-none" data-partner-id="@(isSentByMe ? msg.ReceiverId : msg.SenderId)">
+                            <div class="p-2 px-3 rounded shadow-sm" style="max-width: 65%; @(isSentByMe ? "background-color: #d9fdd3; margin-left: auto;" : "background-color: #ffffff; margin-right: auto;")">
+                                <p class="mb-0">@msg.Content</p>
+                            </div>
+                        </div>
+                    }
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    function openChatThread(partnerId, name, phone) {
+        document.getElementById('activeChatContainer').classList.remove('d-none');
+        document.getElementById('activeChatHeaderName').innerText = name;
+        // Mark Read
+        fetch('/Messages/MarkAsRead?senderId=' + partnerId, { method: 'POST' });
+        // UI Sync
+        document.querySelectorAll('.msg-bubble-row').forEach(b => {
+            b.classList.toggle('d-none', b.getAttribute('data-partner-id') != partnerId);
+        });
+    }
+</script>

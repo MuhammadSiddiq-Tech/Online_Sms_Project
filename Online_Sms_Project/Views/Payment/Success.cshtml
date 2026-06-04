@@ -1,0 +1,19 @@
+﻿@{
+    ViewData["Title"] = "Payment Successful";
+}
+
+<div class="container mt-5 text-center">
+    <div class="card shadow p-5 border-success mx-auto" style="max-width: 600px;">
+        <div class="mb-4">
+            <span class="display-1 text-success">✔️</span>
+        </div>
+        <h1 class="text-success font-weight-bold">Payment Successful!</h1>
+        <p class="lead mt-3">Shukriya! Aapka payment confirm ho gaya hai aur aapka account permanently **Premium Plan** par upgrade ho chuka hai.</p>
+        <hr class="my-4">
+        <p class="text-muted">Ab aap bina kisi rukawat ke un-limited messages bhej sakte hain.</p>
+        <div class="mt-4">
+            <a asp-controller="Messages" asp-action="Index" class="btn btn-success px-4 me-2">Go to Messenger</a>
+            <a asp-controller="Home" asp-action="Index" class="btn btn-outline-secondary px-4">Home</a>
+        </div>
+    </div>
+</div>

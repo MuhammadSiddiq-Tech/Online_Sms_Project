@@ -1,0 +1,32 @@
+﻿@{
+    ViewData["Title"] = "Upgrade Plan";
+}
+
+<div class="container mt-5 text-center">
+    <h1 class="display-4 font-weight-bold mb-3">Unlock Premium Unlimited SMS</h1>
+    <p class="lead text-muted mb-5">Dost hon ya anjanay log, sab ko un-limited texts bhejin bina kisi character ya daily restriction ke.</p>
+
+    <div class="row justify-content-center">
+        <div class="col-md-4">
+            <div class="card mb-4 shadow border-primary">
+                <div class="card-header bg-primary text-white py-3">
+                    <h4 class="my-0 font-weight-normal">Premium Plan</h4>
+                </div>
+                <div class="card-body">
+                    <h1 class="card-title pricing-card-title">$9.99 <small class="text-muted">/ one-time</small></h1>
+                    <ul class="list-unstyled mt-3 mb-4 text-start ps-4">
+                        <li>✅ Unlimited SMS to Anyone</li>
+                        <li>✅ No 5-message limit on strangers</li>
+                        <li>✅ Full 160-character standard SMS limits</li>
+                        <li>✅ 24/7 Premium Support</li>
+                    </ul>
+
+                    <form asp-action="UpgradeToPremium" method="post">
+                        @Html.AntiForgeryToken()
+                        <button type="submit" class="btn btn-lg btn-block btn-primary w-100">Upgrade via Stripe</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
