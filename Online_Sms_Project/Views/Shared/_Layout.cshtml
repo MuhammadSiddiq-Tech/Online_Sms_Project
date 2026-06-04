@@ -31,26 +31,23 @@
             <div class="mb-2">
                 <ul class="nav flex-column">
                     <li class="nav-item">
-                        <a class="sidebar-link active justify-content-between" href="@Url.Action("Index", "Home")">
-                            <span><i class="bi bi-grid-1x2 me-3"></i>Dashboards</span>
+                        <a class="sidebar-link @(ViewContext.RouteData.Values["Controller"]?.ToString() == "Home" ? "active-gradient" : "")"
+                           href="@Url.Action("Index", "Home")">
+                            <i class="bi bi-grid-1x2 me-3"></i>Dashboards
                         </a>
                     </li>
 
                     <li class="nav-item">
-                        <a class="sidebar-link" href="@Url.Action("Index", "Messages")">
+                        <a class="sidebar-link @(ViewContext.RouteData.Values["Controller"]?.ToString() == "Messages" ? "active-gradient" : "")"
+                           href="@Url.Action("Index", "Messages")">
                             <i class="bi bi-chat-left-text me-3"></i>Messages
                         </a>
                     </li>
 
                     <li class="nav-item">
-                        <a class="sidebar-link" href="@Url.Action("Index", "Friends")">
+                        <a class="sidebar-link @(ViewContext.RouteData.Values["Controller"]?.ToString() == "Friends" ? "active-gradient" : "")"
+                           href="@Url.Action("Index", "Friends")">
                             <i class="bi bi-people me-3"></i>Friends & Requests
-                        </a>
-                    </li>
-
-                    <li class="nav-item">
-                        <a class="sidebar-link" href="@Url.Action("Index", "Articles")">
-                            <i class="bi bi-journal-text me-3"></i>Articles Blog
                         </a>
                     </li>
                 </ul>
@@ -84,13 +81,8 @@
     </aside>
 
     <div class="app-header-container">
-        <header class="app-header d-flex align-items-center justify-content-between px-3">
-            <div class="d-flex align-items-center w-50">
-                <i class="bi bi-search text-muted me-3 fs-5"></i>
-                <input type="text" class="form-control border-0 bg-transparent shadow-none" placeholder="Search [CTRL + K]" style="font-size: 0.95rem;" />
-            </div>
-
-            <div class="d-flex align-items-center gap-2">
+        <header class="app-header d-flex align-items-center px-3">
+            <div class="d-flex align-items-center gap-2 ms-auto">
                 <button type="button" class="btn btn-link p-2 text-dark text-decoration-none shadow-none"><i class="bi bi-translate fs-5"></i></button>
                 <button type="button" class="btn btn-link p-2 text-dark text-decoration-none shadow-none"><i class="bi bi-brightness-high fs-5"></i></button>
                 <button type="button" class="btn btn-link p-2 text-dark text-decoration-none shadow-none"><i class="bi bi-bookmark-star fs-5"></i></button>
@@ -104,9 +96,11 @@
                         var username = Context.Session.GetString("Username");
                         var initial = !string.IsNullOrEmpty(username) ? username.Substring(0, 1).ToUpper() : "U";
                     }
-                    <div class="bg-materio text-white rounded-circle d-flex align-items-center justify-content-center fw-bold shadow-sm" title="Logged in as @username" style="width: 38px; height: 38px; font-size: 0.95rem; background-color: #8C57FF;">
-                        @initial
-                    </div>
+                    <a href="@Url.Action("Profile", "Account")" class="text-decoration-none">
+                        <div class="bg-materio text-white rounded-circle d-flex align-items-center justify-content-center fw-bold shadow-sm" title="Profile Settings" style="width: 38px; height: 38px; font-size: 0.95rem; background-color: #8C57FF;">
+                            @initial
+                        </div>
+                    </a>
                 </div>
             </div>
         </header>

@@ -1,7 +1,6 @@
 ﻿@model IEnumerable<Online_Sms_Project.Models.User>
 @{
     ViewData["Title"] = "Friends Hub";
-    // Controller se bheji gayi pending requests ko read karna
     var incoming = ViewBag.IncomingRequests as IEnumerable<Online_Sms_Project.Models.FriendRequest>;
 }
 
@@ -28,10 +27,9 @@
     }
 
     <div class="row mt-4">
-
         <div class="col-md-5 mb-4">
-            <div class="card shadow-sm border-0">
-                <div class="card-header bg-warning text-dark fw-bold">
+            <div class="card shadow-sm friends-card">
+                <div class="card-header-custom bg-warning text-dark fw-bold">
                     <i class="bi bi-bell-fill me-2"></i> Pending Friend Requests
                 </div>
                 <div class="list-group list-group-flush" style="max-height: 400px; overflow-y: auto;">
@@ -45,16 +43,15 @@
                     {
                         @foreach (var req in incoming)
                         {
-                            <div class="list-group-item d-flex justify-content-between align-items-center p-3">
+                            <div class="list-group-item d-flex justify-content-between align-items-center p-3 friend-list-item">
                                 <div>
                                     <span class="fw-bold d-block text-dark">👤 @req.Sender?.Username</span>
                                     <small class="text-muted">📱 @req.Sender?.PhoneNumber</small>
                                 </div>
-
                                 <form asp-action="AcceptRequest" method="post">
                                     @Html.AntiForgeryToken()
                                     <input type="hidden" name="requestId" value="@req.Id" />
-                                    <button type="submit" class="btn btn-xs btn-success btn-sm px-3 shadow-sm">
+                                    <button type="submit" class="btn btn-success btn-xs px-3 shadow-sm">
                                         <i class="bi bi-check-lg"></i> Accept
                                     </button>
                                 </form>
@@ -66,8 +63,8 @@
         </div>
 
         <div class="col-md-7 mb-4">
-            <div class="card shadow-sm border-0">
-                <div class="card-header bg-dark text-white fw-bold">
+            <div class="card shadow-sm friends-card">
+                <div class="card-header-custom bg-dark text-white fw-bold">
                     <i class="bi bi-person-check-fill me-2"></i> Confirmed Friends Network
                 </div>
                 <div class="list-group list-group-flush" style="max-height: 400px; overflow-y: auto;">
@@ -82,13 +79,12 @@
                     {
                         @foreach (var friend in Model)
                         {
-                            <div class="list-group-item d-flex justify-content-between align-items-center p-3 border-bottom">
+                            <div class="list-group-item d-flex justify-content-between align-items-center p-3 border-bottom friend-list-item">
                                 <div>
                                     <h6 class="fw-bold mb-0 text-success">💚 @friend.Username</h6>
                                     <small class="text-muted">📱 @friend.PhoneNumber</small>
                                 </div>
-
-                                <a href="/Messages" class="btn btn-sm btn-outline-primary px-3 shadow-sm rounded-pill">
+                                <a href="/Messages/index" class="btn btn-sm btn-outline-primary px-3 shadow-sm rounded-pill">
                                     <i class="bi bi-chat-dots-fill me-1"></i> Chat Now
                                 </a>
                             </div>
@@ -97,6 +93,5 @@
                 </div>
             </div>
         </div>
-
     </div>
 </div>

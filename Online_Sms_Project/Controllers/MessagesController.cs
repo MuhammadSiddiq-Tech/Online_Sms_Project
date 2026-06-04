@@ -3,6 +3,7 @@ using Microsoft.EntityFrameworkCore;
 using Online_Sms_Project.Data;
 using Online_Sms_Project.Models;
 using Microsoft.AspNetCore.Http;
+using System;
 using System.Linq;
 using System.Threading.Tasks;
 
@@ -12,10 +13,7 @@ namespace Online_Sms_Project.Controllers
     {
         private readonly AppDbContext _context;
 
-        public MessagesController(AppDbContext context)
-        {
-            _context = context;
-        }
+        public MessagesController(AppDbContext context) => _context = context;
 
         public async Task<IActionResult> Index()
         {
@@ -32,6 +30,37 @@ namespace Online_Sms_Project.Controllers
             return View(messages);
         }
 
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> SendSMS(string recipientNumber, string messageBody)
+        {
+            var senderId = HttpContext.Session.GetInt32("UserId");
+            if (!senderId.HasValue) return RedirectToAction("Login", "Account");
+
+            // User dhoondhein (Receiver)
+            var receiver = await _context.Users.FirstOrDefaultAsync(u => u.PhoneNumber == recipientNumber);
+
+            if (receiver == null)
+            {
+                TempData["Error"] = "Yeh phone number kisi user se linked nahi hai!";
+                return RedirectToAction("Index");
+            }
+
+            var message = new Message
+            {
+                SenderId = senderId.Value,
+                ReceiverId = receiver.Id,
+                Content = messageBody,
+                SentAt = DateTime.UtcNow,
+                IsRead = false
+            };
+
+            _context.Messages.Add(message);
+            await _context.SaveChangesAsync();
+
+            return RedirectToAction("Index");
+        }
+
         [HttpGet]
         public IActionResult GetUnreadCounts()
         {
@@ -43,7 +72,6 @@ namespace Online_Sms_Project.Controllers
                 .GroupBy(m => m.SenderId)
                 .Select(g => new { SenderId = g.Key, Count = g.Count() })
                 .ToList();
-
             return Json(unread);
         }
 
@@ -51,11 +79,11 @@ namespace Online_Sms_Project.Controllers
         public async Task<IActionResult> MarkAsRead(int senderId)
         {
             var userId = HttpContext.Session.GetInt32("UserId");
-            var messages = await _context.Messages
+            var msgs = await _context.Messages
                 .Where(m => m.ReceiverId == userId && m.SenderId == senderId && !m.IsRead)
                 .ToListAsync();
 
-            foreach (var msg in messages) msg.IsRead = true;
+            foreach (var m in msgs) m.IsRead = true;
             await _context.SaveChangesAsync();
             return Ok();
         }

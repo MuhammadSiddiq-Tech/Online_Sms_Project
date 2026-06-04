@@ -1,57 +1,148 @@
 ﻿@model IEnumerable<Online_Sms_Project.Models.Message>
 @using Microsoft.AspNetCore.Http
 @{
+    ViewData["Title"] = "Chat Terminal";
     var currentUserId = Context.Session.GetInt32("UserId");
     var chatContacts = Model.Select(m => m.SenderId == currentUserId ? m.Receiver : m.Sender)
                             .Where(u => u != null && u.Id != currentUserId)
                             .GroupBy(u => u.Id).Select(g => g.First()).ToList();
 }
 
-<div class="container-fluid mt-2" style="height: 85vh;">
-    <div class="row bg-white shadow-sm overflow-hidden" style="height: 100%; border-radius: 12px;">
-        <div class="col-md-4 border-end p-0">
-            <div class="p-3 bg-light border-bottom fw-bold">Chats</div>
-            <div class="list-group list-group-flush" style="overflow-y: auto; height: 75vh;">
-                @foreach (var contact in chatContacts)
-                {
-                    <button class="list-group-item list-group-item-action p-3" onclick="openChatThread(@contact.Id, '@contact.Username', '@contact.PhoneNumber')">
-                        <div class="d-flex align-items-center">
-                            <div class="bg-primary text-white rounded-circle d-flex align-items-center justify-content-center me-3" style="width: 40px; height: 40px;">@contact.Username[0]</div>
-                            <div><h6 class="mb-0 fw-bold">@contact.Username</h6></div>
-                            <span class="badge bg-success rounded-circle ms-auto d-none" id="badge-@contact.Id">0</span>
-                        </div>
-                    </button>
-                }
-            </div>
+<style>
+    /* Modern Chat Theme */
+    .chat-window {
+        height: 75vh;
+        display: flex;
+        flex-direction: column;
+        background: #e5ddd5;
+    }
+
+    #messageBubblesBox {
+        flex-grow: 1;
+        overflow-y: auto;
+        padding: 20px;
+        display: flex;
+        flex-direction: column;
+    }
+
+    .msg-bubble-row {
+        display: flex;
+        width: 100%;
+        margin-bottom: 10px;
+    }
+
+    .msg-content {
+        max-width: 70%;
+        padding: 8px 12px;
+        border-radius: 10px;
+        position: relative;
+        box-shadow: 0 1px 1px rgba(0,0,0,0.1);
+    }
+
+    .sent {
+        margin-left: auto;
+        background-color: #d9fdd3;
+    }
+
+    .received {
+        margin-right: auto;
+        background-color: #ffffff;
+    }
+
+    .contact-card {
+        cursor: pointer;
+        transition: 0.2s;
+        border-bottom: 1px solid #f0f0f0;
+    }
+
+        .contact-card:hover {
+            background-color: #f5f6f6;
+        }
+
+    .avatar {
+        width: 45px;
+        height: 45px;
+        background: #00a884;
+        color: white;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        border-radius: 50%;
+        font-weight: bold;
+    }
+</style>
+
+<div class="container mt-4 shadow rounded overflow-hidden">
+    <div class="row g-0">
+        <div class="col-md-4 bg-white" style="height: 75vh; overflow-y: auto;">
+            <div class="p-3 bg-dark text-white fw-bold">My Conversations</div>
+            @foreach (var contact in chatContacts)
+            {
+                <div class="list-group-item contact-card p-3 d-flex align-items-center" onclick="openChatThread(@contact.Id, '@contact.Username', '@contact.PhoneNumber')">
+                    <div class="avatar me-3">@contact.Username.Substring(0, 1).ToUpper()</div>
+                    <div>
+                        <div class="fw-bold">@contact.Username</div>
+                        <small class="text-muted">@contact.PhoneNumber</small>
+                    </div>
+                </div>
+            }
         </div>
-        <div class="col-md-8 d-flex flex-column">
+
+        <div class="col-md-8 chat-window">
+            <div id="defaultWelcomeScreen" class="text-center m-auto text-secondary">
+                <i class="bi bi-chat-left-dots display-1"></i>
+                <p>Select a contact to start messaging</p>
+            </div>
+
             <div id="activeChatContainer" class="d-none flex-column h-100">
-                <div class="p-3 bg-light border-bottom fw-bold" id="activeChatHeaderName">User</div>
-                <div class="flex-grow-1 p-4" id="messageBubblesBox" style="overflow-y: auto; background-color: #e5ddd5;">
-                    @foreach (var msg in Model)
+                <div class="p-3 bg-light border-bottom d-flex align-items-center">
+                    <div class="avatar me-3" id="headerAvatar">U</div>
+                    <div>
+                        <h6 class="mb-0 fw-bold" id="activeChatHeaderName"></h6>
+                        <small class="text-muted" id="activeChatHeaderPhone"></small>
+                    </div>
+                </div>
+
+                <div id="messageBubblesBox">
+                    @foreach (var msg in Model.OrderBy(m => m.SentAt))
                     {
-                        bool isSentByMe = msg.SenderId == currentUserId;
-                        <div class="d-flex mb-2 msg-bubble-row d-none" data-partner-id="@(isSentByMe ? msg.ReceiverId : msg.SenderId)">
-                            <div class="p-2 px-3 rounded shadow-sm" style="max-width: 65%; @(isSentByMe ? "background-color: #d9fdd3; margin-left: auto;" : "background-color: #ffffff; margin-right: auto;")">
-                                <p class="mb-0">@msg.Content</p>
+                        bool isMe = msg.SenderId == currentUserId;
+                        <div class="msg-bubble-row d-none" data-partner-id="@(isMe ? msg.ReceiverId : msg.SenderId)">
+                            <div class="msg-content @(isMe ? "sent" : "received")">
+                                <div class="text-dark">@msg.Content</div>
+                                <div class="text-end" style="font-size: 0.65rem; color: #888;">@msg.SentAt.ToLocalTime().ToString("t")</div>
                             </div>
                         </div>
                     }
                 </div>
+
+                <form asp-action="SendSMS" method="post" class="p-3 bg-white border-top d-flex gap-2">
+                    <input type="hidden" name="recipientNumber" id="replyFormRecipientNumber" />
+                    <input type="text" name="messageBody" class="form-control" placeholder="Type a message..." required />
+                    <button class="btn btn-success"><i class="bi bi-send-fill"></i></button>
+                </form>
             </div>
         </div>
     </div>
 </div>
 
 <script>
-    function openChatThread(partnerId, name, phone) {
+    function openChatThread(partnerId, partnerName, partnerPhone) {
+        document.getElementById('defaultWelcomeScreen').classList.add('d-none');
+        document.getElementById('activeChatContainer').classList.remove('d-flex');
+        document.getElementById('activeChatContainer').classList.add('d-flex');
         document.getElementById('activeChatContainer').classList.remove('d-none');
-        document.getElementById('activeChatHeaderName').innerText = name;
-        // Mark Read
-        fetch('/Messages/MarkAsRead?senderId=' + partnerId, { method: 'POST' });
-        // UI Sync
+
+        document.getElementById('activeChatHeaderName').innerText = partnerName;
+        document.getElementById('activeChatHeaderPhone').innerText = partnerPhone;
+        document.getElementById('replyFormRecipientNumber').value = partnerPhone;
+        document.getElementById('headerAvatar').innerText = partnerName.charAt(0).toUpperCase();
+
         document.querySelectorAll('.msg-bubble-row').forEach(b => {
             b.classList.toggle('d-none', b.getAttribute('data-partner-id') != partnerId);
         });
+
+        const box = document.getElementById("messageBubblesBox");
+        box.scrollTop = box.scrollHeight;
     }
 </script>
